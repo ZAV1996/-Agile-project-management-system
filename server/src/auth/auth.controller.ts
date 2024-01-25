@@ -1,13 +1,10 @@
-import { Controller, ExecutionContext, Req, Post, Body, Patch, Param, Delete, UnauthorizedException, UsePipes, ValidationPipe, UseGuards, HttpCode, HttpStatus, Get, Query, Ip, Res, Next, Redirect } from '@nestjs/common';
+import { Controller, Req, Post, Body, Delete, UseGuards, HttpCode, HttpStatus, Get, Query, Ip, Res, Next, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateTokenData, Email, Tokens, UpdatePass } from './types';
-import { ATGuard, RTGuard } from 'src/commons/guards';
-import { GetCurrentUser } from 'src/commons/decorators';
+import { Email, Tokens, UpdatePass } from './types';
 import { Request, Response } from 'express';
-import { env } from 'process';
 import { RGuard } from 'src/commons/guards/refresh.guard';
 import { AGuard } from 'src/commons/guards/access.guard';
 @ApiTags("Авторизация")
@@ -62,14 +59,14 @@ export class AuthController {
   @UseGuards(RGuard)
   @HttpCode(HttpStatus.OK)
   async refresh(@Req() req: Request, @Ip() ip: string, @Res({ passthrough: true }) response: Response) {
-    const user_agent = Object(req.headers)['user-agent'];
-    const refresh_token = req.cookies.refresh;
-    const tokens = await this.authService.refreshToken(refresh_token, user_agent, ip)
+    const user_agent: string = Object(req.headers)['user-agent'];
+    const refresh_token: string = req.cookies.refresh;
+    const tokens: Tokens = await this.authService.refreshToken(refresh_token, user_agent, ip)
     response.cookie("access", tokens.access_token,
       {
         httpOnly: true,
         path: "/",
-        // maxAge: 1000 * 60 * 15,
+        maxAge: 1000 * 60 * 15,
         secure: true,
         sameSite: "strict"
       }
@@ -77,7 +74,7 @@ export class AuthController {
     response.cookie("refresh", tokens.refresh_token, {
       httpOnly: true,
       path: "/",
-      // maxAge: 1000 * 60 * 60 * 24 * 7,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
       secure: true,
       sameSite: "strict"
     });
@@ -96,7 +93,7 @@ export class AuthController {
   }
   @Post('/update-pass')
   @HttpCode(HttpStatus.OK)
-  forgotpass(@Body() body: UpdatePass): void /*  */ {
+  forgotpass(@Body() body: UpdatePass): void {
     this.authService.updatePass(body);
   }
 
