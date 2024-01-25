@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { RolesModule } from './roles/roles.module';
@@ -39,5 +39,5 @@ const TYPE = process.env.TYPE
   providers: [],
 })
 export class AppModule {
-  constructor() { }
+
 }

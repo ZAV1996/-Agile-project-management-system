@@ -1,9 +1,9 @@
-import { Controller, ExecutionContext, Req, Post, Body, Patch, Param, Delete, UnauthorizedException, UsePipes, ValidationPipe, UseGuards, HttpCode, HttpStatus, Get, Query, Ip, Res, Next } from '@nestjs/common';
+import { Controller, ExecutionContext, Req, Post, Body, Patch, Param, Delete, UnauthorizedException, UsePipes, ValidationPipe, UseGuards, HttpCode, HttpStatus, Get, Query, Ip, Res, Next, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateTokenData, Email, Tokens } from './types';
+import { CreateTokenData, Email, Tokens, UpdatePass } from './types';
 import { ATGuard, RTGuard } from 'src/commons/guards';
 import { GetCurrentUser } from 'src/commons/decorators';
 import { Request, Response } from 'express';
@@ -69,7 +69,7 @@ export class AuthController {
       {
         httpOnly: true,
         path: "/",
-        maxAge: 1000 * 60 * 15,
+        // maxAge: 1000 * 60 * 15,
         secure: true,
         sameSite: "strict"
       }
@@ -77,7 +77,7 @@ export class AuthController {
     response.cookie("refresh", tokens.refresh_token, {
       httpOnly: true,
       path: "/",
-      maxAge: 1000 * 60 * 60 * 24 * 7,
+      // maxAge: 1000 * 60 * 60 * 24 * 7,
       secure: true,
       sameSite: "strict"
     });
@@ -91,15 +91,16 @@ export class AuthController {
 
   @Post('/forgot')
   @HttpCode(HttpStatus.OK)
-  forgot(@Body() EMAIL: Email) {
-    return this.authService.forgot(EMAIL.EMAIL)
+  forgot(@Body() email: Email): void {
+    this.authService.forgot(email.EMAIL)
   }
-
-  @Get('/forgot')
+  @Post('/update-pass')
   @HttpCode(HttpStatus.OK)
-  forgor(@Body() password: string) {
-
+  forgotpass(@Body() body: UpdatePass): void /*  */ {
+    this.authService.updatePass(body);
   }
+
+
 }
 
 

@@ -9,7 +9,7 @@ import { User } from 'src/users/entities/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import cookieParser from 'cookie-parser';
 import { env } from 'process';
-import { CreateTokenData, Email, Tokens } from './types';
+import { CreateTokenData, Email, Tokens, UpdatePass } from './types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JWTSession } from "./entities/JWTSession.entity";
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -59,7 +59,7 @@ export class AuthService {
     Tokens.UUID = UUID;
     Tokens.PER_NUM = PER_NUM;
     Tokens.ACCESS_TOKEN = AToken;
-    this.RTokensRepository.save(Tokens)
+    await this.RTokensRepository.save(Tokens)
   }
 
   async registration(createAuthDto: CreateAuthDto): Promise<void> {
@@ -131,13 +131,27 @@ export class AuthService {
   }
 
   async forgot(email: string) {
-    const user = await this.usersService.getUserByEmail(email)
-    const token = uuidv4();
+    const user: User | null = await this.usersService.getUserByEmail(email)
+    const token: string = uuidv4();
+    if (!user) {
+      throw new UnauthorizedException({ message: "Пользователь не зарегистрирован" })
+    }
+    await this.usersService.updateUser({ ...user, forgotToken: token })
     await this.smpt.sendForgotPassword(user, token)
   }
 
+  async updatePass(body: UpdatePass): Promise<void> {
+    const user: User | null = await this.usersService.getUserByPER_NUM(body.PER_NUM);
+    if (user && user.forgotToken) {
+      if (body.password === body.confirm_password && body.token === user.forgotToken) {
+        const newPass: string = await this.hashData(body.password);
+        await this.usersService.updateUser({ ...user, PASSWORD: newPass, forgotToken: null })
+      }
+    }
+  }
+
   private async validate(credintals: CreateUserDto) {
-    const user = await this.usersService.getUserByEmail(credintals.email);
+    const user: User | null = await this.usersService.getUserByEmail(credintals.email);
     if (!user) {
       throw new UnauthorizedException({ message: "Пользователь с таким email не зарегистрирован." })
     }

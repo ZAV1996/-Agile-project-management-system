@@ -51,8 +51,14 @@ export class User {
     @Column({ default: false })
     isActivated: boolean
 
-    @Column({ nullable: true })
-    activationToken: string
+    @Column({ nullable: true, type: 'varchar', })
+    activationToken: string | null
+
+    @Column({
+        nullable: true,
+        type: 'varchar',
+    })
+    forgotToken: string | null
 
     @Column()
     PASSWORD: string

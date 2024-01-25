@@ -20,20 +20,14 @@ export class SmtpSendlerService {
       from: env.SMTP_USER
     });
   }
-
-
-
-
-
   async sendUserConfirmation(user: User | null, token: string) {
-    const url = `${env.ORIGIN}/api/auth/confirm?PER_NUM=${user?.PER_NUM}&token=${token}`;
-
+    const url = `http://localhost:5000/api/auth/confirm?PER_NUM=${user?.PER_NUM}&token=${token}`;
     await this.mailerService.sendMail({
       to: user?.EMAIL,
-      from: 'prj@uuap.com', // override default from
+      from: 'prj@uuap.com',
       subject: 'Активация учетной запись',
-      template: './confirmation', // `.hbs` extension is appended automatically
-      context: { // ✏️ filling curly brackets with content
+      template: './confirmation',
+      context: {
         name: `${user?.FIRST_NAME + ' ' + user?.LAST_NAME}`,
         url,
       },
@@ -41,28 +35,16 @@ export class SmtpSendlerService {
   }
 
   async sendForgotPassword(user: User | null, token: string) {
-
-    // const transport = await this.mailTransport();
-    // transport.sendMail({
-    //   subject: "Восстановление пароля",
-    //   html: `
-    //   <div>
-
-    //   </div>`
-    // })
-
-
-
-
-
-
-    // let result = await transporter.sendMail({
-    //   to: 'zav20570@uuap.com',
-    //   subject: 'Message from Node js',
-    //   text: 'This message was sent from Node js server.',
-    //   html:
-    //     'This <i>message</i> was sent from <strong>Node js</strong> server.',
-    // })
-    // await this.mailTransport()
+    const url = `http://localhost:5000/api/auth/confirm?PER_NUM=${user?.PER_NUM}&token=${token}`;
+    await this.mailerService.sendMail({
+      to: user?.EMAIL,
+      from: 'prj@uuap.com',
+      subject: 'TODO',
+      template: './confirmation',
+      context: {
+        name: `${user?.FIRST_NAME + ' ' + user?.LAST_NAME}`,
+        url,
+      },
+    });
   }
 }

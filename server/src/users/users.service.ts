@@ -38,8 +38,12 @@ export class UsersService {
 
   async activateUser(user: User) {
     this.userRepository.save({
-      ...user, isActivated: true, activationToken: ""
+      ...user, isActivated: true, activationToken: null
     })
   }
 
+
+  async updateUser(user: User) {
+    this.userRepository.save({ ...user })
+  }
 }
